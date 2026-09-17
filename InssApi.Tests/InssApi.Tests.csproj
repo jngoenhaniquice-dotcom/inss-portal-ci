@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\back\InssApi.csproj" />
+    <ProjectReference Include="..\InssApi\InssApi.csproj" />
   </ItemGroup>
 
 </Project>
