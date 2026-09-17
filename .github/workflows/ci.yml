@@ -1,0 +1,64 @@
+name: CI — InssApi + portal
+
+# M16 — a cada push/PR: testar a API e buildar o front.
+# Quality gate: o job do front só roda se os testes passaram.
+# Coloque este arquivo em .github/workflows/ci.yml na raiz do repo
+# (estrutura aluno: InssApi/, InssApi.Tests/, inss-portal/ em fiap_turma_2).
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  test-api:
+    name: Testes .NET (M15)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: InssApi.Tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore + test
+        run: |
+          dotnet restore
+          dotnet test --no-restore --logger "trx;LogFileName=results.trx"
+
+      - name: Upload resultados
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: InssApi.Tests/TestResults/**/*.trx
+
+  build-front:
+    name: Build React (quality gate)
+    needs: test-api
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: inss-portal
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: inss-portal/package-lock.json
+
+      - name: Install + build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Upload dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: portal-dist
+          path: inss-portal/dist
