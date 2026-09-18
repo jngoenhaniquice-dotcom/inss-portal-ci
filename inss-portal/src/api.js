@@ -1,5 +1,5 @@
 // M14 — api.js completo (verbos do Swagger) + Bearer + 401 num lugar só
-const BASE = "http://localhost:5088";
+const BASE = "https://inssapi.onrender.com";
 
 function pegarToken() {
   const salvo = localStorage.getItem("inss.sessao");
